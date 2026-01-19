@@ -241,7 +241,7 @@ if st.button("Calcular Chances 🚀", type="primary", use_container_width=True):
                 <div class="premium-title">🔐 Desbloqueie o Resultado Completo</div>
                 <p>Você encontrou <b>{len(res)} opções</b> de curso!</p>
                 <p>Libere agora a <b>Lista Completa</b>, o <b>Gráfico Comparativo</b> e receba nosso <b>Guia Exclusivo de Matrícula</b> (Documentos e Prazos).</p>
-                <p style="font-size:18px;">Valor simbólico: <b>R$ 5,00</b></p>
+                <p style="font-size:18px;">Valor simbólico: <b>R$ 6,90</b></p>
             </div>
             """, unsafe_allow_html=True)
             
@@ -255,3 +255,4 @@ if st.button("Calcular Chances 🚀", type="primary", use_container_width=True):
         
         # ANÚNCIO RODAPÉ (SHOPEE)
         exibir_anuncio('rodape')
+
