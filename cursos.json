@@ -1,0 +1,58 @@
+[
+  {
+    "universidade": "UnB",
+    "campus": "Darcy Ribeiro (Brasília)",
+    "nome": "Ciência da Computação",
+    "corte": 765.4,
+    "pesos": {"redacao": 4, "matematica": 4, "linguagens": 2, "humanas": 2, "natureza": 2}
+  },
+  {
+    "universidade": "UnB",
+    "campus": "Gama (FGA)",
+    "nome": "Engenharia de Software",
+    "corte": 745.2,
+    "pesos": {"redacao": 3, "matematica": 4, "linguagens": 2, "humanas": 1, "natureza": 3}
+  },
+  {
+    "universidade": "IFB",
+    "campus": "Taguatinga",
+    "nome": "Análise e Desenv. de Sistemas",
+    "corte": 680.0,
+    "pesos": {"redacao": 2, "matematica": 3, "linguagens": 2, "humanas": 1, "natureza": 1}
+  },
+  {
+    "universidade": "UFRJ",
+    "campus": "Cidade Universitária",
+    "nome": "Medicina",
+    "corte": 825.8,
+    "pesos": {"redacao": 4, "matematica": 2, "linguagens": 2, "humanas": 2, "natureza": 4}
+  },
+  {
+    "universidade": "USP",
+    "campus": "São Paulo",
+    "nome": "Direito",
+    "corte": 780.0,
+    "pesos": {"redacao": 4, "matematica": 1, "linguagens": 4, "humanas": 4, "natureza": 1}
+  },
+  {
+    "universidade": "UnB",
+    "campus": "Darcy Ribeiro",
+    "nome": "Medicina",
+    "corte": 812.5,
+    "pesos": {"redacao": 4, "matematica": 2, "linguagens": 2, "humanas": 2, "natureza": 4}
+  },
+  {
+    "universidade": "UFMG",
+    "campus": "Pampulha",
+    "nome": "Psicologia",
+    "corte": 735.6,
+    "pesos": {"redacao": 3, "matematica": 1, "linguagens": 3, "humanas": 3, "natureza": 2}
+  },
+  {
+    "universidade": "UnB",
+    "campus": "Darcy Ribeiro",
+    "nome": "Engenharia Elétrica",
+    "corte": 720.1,
+    "pesos": {"redacao": 2, "matematica": 5, "linguagens": 1, "humanas": 1, "natureza": 4}
+  }
+]
