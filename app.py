@@ -314,7 +314,7 @@ if st.session_state['calc_realizado']:
                 st.markdown("---")
             
             with st.container():
-                st.markdown("""<div class="premium-box"><div class="premium-title">🔐 Desbloqueie o Resultado Completo</div><p>Libere a Lista Total e o Guia de Matrícula.</p><p style="font-size:18px;">Valor: <b>R$ 5,00</b></p></div>""", unsafe_allow_html=True)
+                st.markdown("""<div class="premium-box"><div class="premium-title">🔐 Desbloqueie o Resultado Completo</div><p>Libere a Lista Total e o Guia de Matrícula.</p><p style="font-size:18px;">Valor: <b>R$ 6,90</b></p></div>""", unsafe_allow_html=True)
                 
                 c_pay1, c_pay2, c_pay3 = st.columns([1, 2, 1])
                 with c_pay2:
@@ -331,3 +331,4 @@ if st.session_state['calc_realizado']:
             
             st.divider()
             exibir_anuncio('rodape')
+
