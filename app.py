@@ -9,6 +9,7 @@ st.set_page_config(page_title="Simulador Sisu 2025", page_icon="🎓", layout="w
 # --- CSS PERSONALIZADO ---
 st.markdown("""
 <style>
+    /* Caixa de Venda (Grátis) */
     .premium-box {
         background-color: #d1e7dd;
         border: 2px solid #198754;
@@ -18,12 +19,8 @@ st.markdown("""
         margin-top: 20px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    .premium-title {
-        color: #198754;
-        font-weight: bold;
-        font-size: 22px;
-        margin-bottom: 10px;
-    }
+    
+    /* Cabeçalho VIP (Verde) */
     .vip-header {
         background-color: #198754;
         color: white;
@@ -32,6 +29,36 @@ st.markdown("""
         text-align: center;
         margin-bottom: 20px;
     }
+
+    /* NOVO: Banner de Oferta VIP (Dourado/Preto) */
+    .vip-offer {
+        background: linear-gradient(90deg, #1a1a1a 0%, #333333 100%);
+        border: 2px solid #d4af37; /* Borda Dourada */
+        color: #d4af37;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 20px;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+    }
+    .vip-offer:hover {
+        background: #000;
+        border-color: #fff;
+    }
+    .vip-offer h3 {
+        margin: 0;
+        font-size: 20px;
+        color: #fff;
+    }
+    .vip-offer p {
+        margin: 5px 0 0 0;
+        font-size: 14px;
+        color: #ddd;
+    }
+
+    /* Caixas de Resultado */
     .success-box {
         padding: 15px; 
         background-color: #d4edda; 
@@ -51,17 +78,18 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- SISTEMA DE LOGIN (SEGURANÇA) ---
-# Define a senha correta aqui (Você pode mudar quando quiser no GitHub)
+# --- SENHA MESTRA ---
 SENHA_MESTRA = "APROVADO2025" 
 
-# Inicializa o estado de VIP como Falso se não existir
+# --- GESTÃO DE ESTADO (MEMÓRIA) ---
 if 'vip_liberado' not in st.session_state:
     st.session_state['vip_liberado'] = False
 
-# --- FUNÇÃO DE ANÚNCIOS ---
+if 'calc_realizado' not in st.session_state:
+    st.session_state['calc_realizado'] = False
+
+# --- FUNÇÃO DE ANÚNCIOS (BANNERS COMUNS) ---
 def exibir_anuncio(tipo, altura=None):
-    # SEUS LINKS DE AFILIADO
     img_notebook = "https://m.media-amazon.com/images/I/713GzsYLBbL._AC_SX522_.jpg" 
     link_notebook = "https://amzn.to/3NSFItN"
     img_kindle = "https://m.media-amazon.com/images/I/81Z2YCqqy-L._AC_SX679_.jpg"
@@ -107,7 +135,7 @@ def exibir_anuncio(tipo, altura=None):
         altura = 80
     components.html(html_code, height=altura)
 
-# --- 1. CARREGAMENTO DE DADOS ---
+# --- CARREGAMENTO DE DADOS ---
 @st.cache_data
 def carregar_dados():
     try:
@@ -134,26 +162,17 @@ def carregar_dados():
 
 df_sisu = carregar_dados()
 
-# --- 2. BARRA LATERAL (Inputs e Login) ---
+# --- BARRA LATERAL ---
 with st.sidebar:
-    # --- ÁREA DE LOGIN ---
-    if not st.session_state['vip_liberado']:
-        with st.expander("🔐 Login", expanded=True):
-            senha_digitada = st.text_input("Digite sua Senha de Acesso:", type="password")
-            if st.button("Entrar"):
-                if senha_digitada == SENHA_MESTRA:
-                    st.session_state['vip_liberado'] = True
-                    st.rerun() # Recarrega a página para aplicar o VIP
-                else:
-                    st.error("Senha incorreta!")
-    else:
-        st.success("💎 ACESSO VIP LIBERADO")
+    # Se já for VIP, mostra botão de sair
+    if st.session_state['vip_liberado']:
+        st.success("💎 VOCÊ É VIP")
         if st.button("Sair / Logout"):
             st.session_state['vip_liberado'] = False
+            st.session_state['calc_realizado'] = False
             st.rerun()
-            
-    st.divider()
-    
+        st.divider()
+
     st.header("📝 Suas Notas")
     n_red = st.number_input("Redação", 0, 1000, 760, step=10)
     n_mat = st.number_input("Matemática", 0, 1000, 740, step=10)
@@ -164,18 +183,29 @@ with st.sidebar:
     st.divider()
     exibir_anuncio('lateral')
 
-# --- 3. TELA PRINCIPAL ---
+# --- TELA PRINCIPAL ---
 if st.session_state['vip_liberado']:
     st.markdown("""<div class="vip-header"><h1>🎓 Área do Aprovado (Premium)</h1><p>Bem-vindo! Aqui está o acesso completo aos dados e ao Guia.</p></div>""", unsafe_allow_html=True)
+    
+    # --- AQUI ESTÁ O NOVO ANÚNCIO EXCLUSIVO (VIP) ---
+    # Troque o LINK no href pelo seu link de afiliado (Amazon Prime Student é ótimo aqui)
+    st.markdown("""
+    <a href="https://amzn.to/SEU_LINK_AQUI" target="_blank" class="vip-offer">
+        <h3>🎁 Presente Exclusivo para Aprovados</h3>
+        <p>Você merece! Clique aqui e garanta <b>FRETE GRÁTIS + FILMES</b> para curtir antes das aulas começarem.</p>
+    </a>
+    """, unsafe_allow_html=True)
+    # ------------------------------------------------
+
 else:
     st.title("🎓 Simulador Sisu 2025")
     exibir_anuncio('topo')
 
 if df_sisu is None:
-    st.warning("⚠️ Base de dados não encontrada. Verifique se 'grades.csv' está no GitHub.")
+    st.warning("⚠️ Base de dados não encontrada.")
     st.stop()
 
-# Filtros (Esconde se for VIP para limpar a tela)
+# Filtros
 if st.session_state['vip_liberado']:
     filtros_container = st.expander("⚙️ Alterar Filtros de Busca", expanded=False)
 else:
@@ -201,8 +231,12 @@ if uf_user == "DF" or (busca_nome and "unb" in busca_nome.lower()):
 
 # Botão Calcular
 txt_botao = "Atualizar Lista VIP 🔄" if st.session_state['vip_liberado'] else "Calcular Chances 🚀"
+
 if st.button(txt_botao, type="primary", use_container_width=True):
-    
+    st.session_state['calc_realizado'] = True
+
+# --- EXIBIÇÃO ---
+if st.session_state['calc_realizado']:
     res = df_sisu[df_sisu['Cota'] == cota_user].copy()
     if uf_user != "Todos": res = res[res['UF'] == uf_user]
     if uni_user != "Todas": res = res[res['Sigla'] == uni_user]
@@ -211,7 +245,6 @@ if st.button(txt_botao, type="primary", use_container_width=True):
     pesos = res['P_Redacao'] + res['P_Matematica'] + res['P_Linguagens'] + res['P_Humanas'] + res['P_Natureza']
     pesos = pesos.replace(0, 1)
     res['Sua_Media'] = ((n_red * res['P_Redacao']) + (n_mat * res['P_Matematica']) + (n_lin * res['P_Linguagens']) + (n_hum * res['P_Humanas']) + (n_nat * res['P_Natureza'])) / pesos
-    
     res['Aprovado'] = res['Sua_Media'] >= res['Nota_Corte']
     res['Diferenca'] = res['Sua_Media'] - res['Nota_Corte']
     res = res.sort_values(by=['Aprovado', 'Diferenca'], ascending=False)
@@ -221,7 +254,7 @@ if st.button(txt_botao, type="primary", use_container_width=True):
     if res.empty:
         st.info("Nenhum curso encontrado com esses filtros.")
     else:
-        # === ÁREA VIP (SE ESTIVER LOGADO) ===
+        # === MODO VIP (LOGADO) ===
         if st.session_state['vip_liberado']:
             st.success(f"Encontramos **{len(res)}** opções disponíveis para você!")
             
@@ -234,7 +267,7 @@ if st.button(txt_botao, type="primary", use_container_width=True):
                         with open("manual_sisu.pdf", "rb") as pdf_file:
                             st.download_button("📥 Baixar PDF do Guia", data=pdf_file, file_name="Manual_Sisu.pdf", mime="application/pdf", use_container_width=True)
                     except:
-                        st.error("⚠️ Arquivo 'manual_sisu.pdf' não encontrado no GitHub.")
+                        st.error("⚠️ PDF não encontrado.")
                 with col_share:
                     texto_zap = urllib.parse.quote(f"Passei em {len(res)} cursos! Veja suas chances: https://seusite.tech")
                     st.link_button("💚 Compartilhar no WhatsApp", f"https://wa.me/?text={texto_zap}", use_container_width=True)
@@ -258,12 +291,7 @@ if st.button(txt_botao, type="primary", use_container_width=True):
                 nao_aprovados = res[res['Aprovado'] == False]
                 
                 if not aprovados.empty:
-                    st.markdown(f"""
-                    <div class="success-box">
-                        <h3>🏆 PARABÉNS! VOCÊ PASSA EM {len(aprovados)} CURSOS!</h3>
-                        <p>Nesta lista abaixo, sua nota é <b>MAIOR</b> que a nota de corte.</p>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.markdown(f"""<div class="success-box"><h3>🏆 PARABÉNS! VOCÊ PASSA EM {len(aprovados)} CURSOS!</h3></div>""", unsafe_allow_html=True)
                     st.dataframe(aprovados[['Curso', 'Universidade', 'Sigla', 'UF', 'Turno', 'Sua_Media', 'Nota_Corte', 'Diferenca']], hide_index=True, use_container_width=True)
                 else:
                     st.warning("Nenhum curso com aprovação direta na chamada regular.")
@@ -271,15 +299,10 @@ if st.button(txt_botao, type="primary", use_container_width=True):
                 st.divider()
                 
                 if not nao_aprovados.empty:
-                    st.markdown(f"""
-                    <div class="warning-box">
-                        <h3>⚠️ LISTA DE ESPERA ({len(nao_aprovados)} opções)</h3>
-                        <p>Fique atento à coluna 'Diferença' para saber suas chances.</p>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.markdown(f"""<div class="warning-box"><h3>⚠️ LISTA DE ESPERA ({len(nao_aprovados)} opções)</h3></div>""", unsafe_allow_html=True)
                     st.dataframe(nao_aprovados[['Curso', 'Universidade', 'Sigla', 'UF', 'Turno', 'Sua_Media', 'Nota_Corte', 'Diferenca']], hide_index=True, use_container_width=True)
 
-        # === ÁREA GRÁTIS (SE NÃO ESTIVER LOGADO) ===
+        # === MODO GRÁTIS (SEM LOGIN) ===
         else:
             st.success(f"Encontramos **{len(res)}** opções disponíveis!")
             st.subheader("📋 Top 3 Resultados (Demonstração Grátis)")
@@ -291,12 +314,20 @@ if st.button(txt_botao, type="primary", use_container_width=True):
                 st.markdown("---")
             
             with st.container():
-                st.markdown("""<div class="premium-box"><div class="premium-title">🔐 Desbloqueie o Resultado Completo</div><p>Libere a Lista Total e o Guia de Matrícula.</p><p style="font-size:18px;">Valor: <b>R$ 6,90</b></p></div>""", unsafe_allow_html=True)
+                st.markdown("""<div class="premium-box"><div class="premium-title">🔐 Desbloqueie o Resultado Completo</div><p>Libere a Lista Total e o Guia de Matrícula.</p><p style="font-size:18px;">Valor: <b>R$ 5,00</b></p></div>""", unsafe_allow_html=True)
+                
                 c_pay1, c_pay2, c_pay3 = st.columns([1, 2, 1])
                 with c_pay2:
                     st.link_button("⭐ QUERO MINHA APROVAÇÃO", "https://mpago.li/21eyi3e", use_container_width=True)
+                    
+                    with st.expander("🔑 Já comprou? Digite sua senha aqui"):
+                        senha_user = st.text_input("Senha de Acesso:", type="password", key="input_senha")
+                        if st.button("Liberar Acesso VIP"):
+                            if senha_user == SENHA_MESTRA:
+                                st.session_state['vip_liberado'] = True
+                                st.rerun()
+                            else:
+                                st.error("Senha incorreta.")
             
             st.divider()
             exibir_anuncio('rodape')
-
-
