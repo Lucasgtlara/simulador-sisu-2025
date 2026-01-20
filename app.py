@@ -291,11 +291,12 @@ if st.button(txt_botao, type="primary", use_container_width=True):
                 st.markdown("---")
             
             with st.container():
-                st.markdown("""<div class="premium-box"><div class="premium-title">🔐 Desbloqueie o Resultado Completo</div><p>Libere a Lista Total e o Guia de Matrícula.</p><p style="font-size:18px;">Valor: <b>R$ 5,00</b></p></div>""", unsafe_allow_html=True)
+                st.markdown("""<div class="premium-box"><div class="premium-title">🔐 Desbloqueie o Resultado Completo</div><p>Libere a Lista Total e o Guia de Matrícula.</p><p style="font-size:18px;">Valor: <b>R$ 6,90</b></p></div>""", unsafe_allow_html=True)
                 c_pay1, c_pay2, c_pay3 = st.columns([1, 2, 1])
                 with c_pay2:
                     st.link_button("⭐ QUERO MINHA APROVAÇÃO", "https://mpago.li/21eyi3e", use_container_width=True)
             
             st.divider()
             exibir_anuncio('rodape')
+
 
