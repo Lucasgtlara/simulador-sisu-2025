@@ -6,12 +6,6 @@ import urllib.parse
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Simulador Sisu 2025", page_icon="🎓", layout="wide")
 
-# --- 0. VERIFICAÇÃO DE ACESSO (LINK SECRETO) ---
-query_params = st.query_params
-acesso_vip = False
-if "acesso" in query_params and query_params["acesso"] == "premium":
-    acesso_vip = True
-
 # --- CSS PERSONALIZADO ---
 st.markdown("""
 <style>
@@ -57,15 +51,21 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# --- SISTEMA DE LOGIN (SEGURANÇA) ---
+# Define a senha correta aqui (Você pode mudar quando quiser no GitHub)
+SENHA_MESTRA = "APROVADO2025" 
+
+# Inicializa o estado de VIP como Falso se não existir
+if 'vip_liberado' not in st.session_state:
+    st.session_state['vip_liberado'] = False
+
 # --- FUNÇÃO DE ANÚNCIOS ---
 def exibir_anuncio(tipo, altura=None):
     # SEUS LINKS DE AFILIADO
     img_notebook = "https://m.media-amazon.com/images/I/713GzsYLBbL._AC_SX522_.jpg" 
     link_notebook = "https://amzn.to/3NSFItN"
-    
     img_kindle = "https://m.media-amazon.com/images/I/81Z2YCqqy-L._AC_SX679_.jpg"
     link_kindle = "https://amzn.to/3NqnjEI"
-
     link_shopee = "https://shopee.com.br/SEU_LINK_SHOPEE" 
 
     if tipo == 'topo':
@@ -85,7 +85,6 @@ def exibir_anuncio(tipo, altura=None):
         </div>
         """
         altura = 120 
-        
     elif tipo == 'lateral':
         html_code = f"""
         <div style="text-align: center; background: #fff; padding: 15px; border: 1px solid #eee; border-radius: 8px; font-family: sans-serif;">
@@ -98,7 +97,6 @@ def exibir_anuncio(tipo, altura=None):
         </div>
         """
         altura = 320
-        
     elif tipo == 'rodape':
         html_code = f"""
         <div style="background-color:#fff3cd; padding: 15px; text-align: center; border-radius: 8px; border: 1px solid #ffeeba; font-family: sans-serif;">
@@ -107,19 +105,15 @@ def exibir_anuncio(tipo, altura=None):
         </div>
         """
         altura = 80
-
     components.html(html_code, height=altura)
 
 # --- 1. CARREGAMENTO DE DADOS ---
 @st.cache_data
 def carregar_dados():
     try:
-        # Lê o CSV
         df = pd.read_csv("grades.csv", sep=";", header=None, on_bad_lines='skip', encoding='utf-8')
-        
         indices_fixos = [0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         nomes_fixos = ["Codigo", "Curso", "Grau", "Turno", "Campus", "Cidade", "UF", "Universidade", "Sigla", "P_Redacao", "P_Matematica", "P_Linguagens", "P_Humanas", "P_Natureza"]
-        
         lista_dfs = []
         for i in range(21, df.shape[1], 5):
             if i + 2 < df.shape[1]:
@@ -127,7 +121,6 @@ def carregar_dados():
                 temp.columns = nomes_fixos + ["Cota", "Nota_Corte"]
                 temp = temp.dropna(subset=["Nota_Corte"])
                 lista_dfs.append(temp)
-        
         if lista_dfs:
             final = pd.concat(lista_dfs, ignore_index=True)
             cols_num = ["P_Redacao", "P_Matematica", "P_Linguagens", "P_Humanas", "P_Natureza", "Nota_Corte"]
@@ -135,17 +128,32 @@ def carregar_dados():
                 final[col] = pd.to_numeric(final[col], errors='coerce')
             return final
         return None
-
     except Exception as e:
         st.error(f"Erro ao carregar dados: {e}")
         return None
 
 df_sisu = carregar_dados()
 
-# --- 2. BARRA LATERAL ---
+# --- 2. BARRA LATERAL (Inputs e Login) ---
 with st.sidebar:
-    if acesso_vip:
+    # --- ÁREA DE LOGIN ---
+    if not st.session_state['vip_liberado']:
+        with st.expander("🔐 Área VIP (Já comprei)", expanded=True):
+            senha_digitada = st.text_input("Digite sua Senha de Acesso:", type="password")
+            if st.button("Entrar"):
+                if senha_digitada == SENHA_MESTRA:
+                    st.session_state['vip_liberado'] = True
+                    st.rerun() # Recarrega a página para aplicar o VIP
+                else:
+                    st.error("Senha incorreta!")
+    else:
         st.success("💎 ACESSO VIP LIBERADO")
+        if st.button("Sair / Logout"):
+            st.session_state['vip_liberado'] = False
+            st.rerun()
+            
+    st.divider()
+    
     st.header("📝 Suas Notas")
     n_red = st.number_input("Redação", 0, 1000, 760, step=10)
     n_mat = st.number_input("Matemática", 0, 1000, 740, step=10)
@@ -157,7 +165,7 @@ with st.sidebar:
     exibir_anuncio('lateral')
 
 # --- 3. TELA PRINCIPAL ---
-if acesso_vip:
+if st.session_state['vip_liberado']:
     st.markdown("""<div class="vip-header"><h1>🎓 Área do Aprovado (Premium)</h1><p>Bem-vindo! Aqui está o acesso completo aos dados e ao Guia.</p></div>""", unsafe_allow_html=True)
 else:
     st.title("🎓 Simulador Sisu 2025")
@@ -167,14 +175,14 @@ if df_sisu is None:
     st.warning("⚠️ Base de dados não encontrada. Verifique se 'grades.csv' está no GitHub.")
     st.stop()
 
-# Filtros
-if acesso_vip:
+# Filtros (Esconde se for VIP para limpar a tela)
+if st.session_state['vip_liberado']:
     filtros_container = st.expander("⚙️ Alterar Filtros de Busca", expanded=False)
 else:
     filtros_container = st.container(border=True)
 
 with filtros_container:
-    if not acesso_vip: st.subheader("🔍 Filtros de Busca")
+    if not st.session_state['vip_liberado']: st.subheader("🔍 Filtros de Busca")
     busca_nome = st.text_input("Nome do Curso (ex: Direito, Medicina):")
     c1, c2, c3 = st.columns(3)
     with c1:
@@ -192,7 +200,7 @@ if uf_user == "DF" or (busca_nome and "unb" in busca_nome.lower()):
     st.warning("⚠️ **Aviso:** A UnB usa edital próprio e não aparece nesta lista. No DF, mostramos IFB e UnDF.")
 
 # Botão Calcular
-txt_botao = "Atualizar Lista VIP 🔄" if acesso_vip else "Calcular Chances 🚀"
+txt_botao = "Atualizar Lista VIP 🔄" if st.session_state['vip_liberado'] else "Calcular Chances 🚀"
 if st.button(txt_botao, type="primary", use_container_width=True):
     
     res = df_sisu[df_sisu['Cota'] == cota_user].copy()
@@ -213,14 +221,13 @@ if st.button(txt_botao, type="primary", use_container_width=True):
     if res.empty:
         st.info("Nenhum curso encontrado com esses filtros.")
     else:
-        if acesso_vip:
-            # === ÁREA VIP COMPLETA ===
+        # === ÁREA VIP (SE ESTIVER LOGADO) ===
+        if st.session_state['vip_liberado']:
             st.success(f"Encontramos **{len(res)}** opções disponíveis para você!")
             
-            tab1, tab2 = st.tabs(["📄 GUIA DA MATRÍCULA (PDF)", "📊 MEUS RESULTADOS COMPLETOS"])
+            tab1, tab2 = st.tabs(["📄 GUIA DA MATRÍCULA (PDF)", "📊 RESULTADOS COMPLETOS"])
             
             with tab1:
-                # [ABA 1: DOWNLOAD DO GUIA]
                 col_dload, col_share = st.columns(2)
                 with col_dload:
                     try:
@@ -247,13 +254,9 @@ if st.button(txt_botao, type="primary", use_container_width=True):
                 """, unsafe_allow_html=True)
 
             with tab2:
-                # [ABA 2: RESULTADOS DIVIDIDOS]
-                
-                # Filtrar Aprovados
                 aprovados = res[res['Aprovado'] == True]
                 nao_aprovados = res[res['Aprovado'] == False]
                 
-                # --- PARTE 1: ONDE PASSOU ---
                 if not aprovados.empty:
                     st.markdown(f"""
                     <div class="success-box">
@@ -263,22 +266,21 @@ if st.button(txt_botao, type="primary", use_container_width=True):
                     """, unsafe_allow_html=True)
                     st.dataframe(aprovados[['Curso', 'Universidade', 'Sigla', 'UF', 'Turno', 'Sua_Media', 'Nota_Corte', 'Diferenca']], hide_index=True, use_container_width=True)
                 else:
-                    st.warning("Com essas notas, você não passaria direto na chamada regular nestes cursos. Veja a Lista de Espera abaixo.")
+                    st.warning("Nenhum curso com aprovação direta na chamada regular.")
                 
                 st.divider()
                 
-                # --- PARTE 2: LISTA DE ESPERA ---
                 if not nao_aprovados.empty:
                     st.markdown(f"""
                     <div class="warning-box">
                         <h3>⚠️ LISTA DE ESPERA ({len(nao_aprovados)} opções)</h3>
-                        <p>Nesta lista, sua nota ficou abaixo do corte. Veja a coluna 'Diferença' para saber o quão perto você está.</p>
+                        <p>Fique atento à coluna 'Diferença' para saber suas chances.</p>
                     </div>
                     """, unsafe_allow_html=True)
                     st.dataframe(nao_aprovados[['Curso', 'Universidade', 'Sigla', 'UF', 'Turno', 'Sua_Media', 'Nota_Corte', 'Diferenca']], hide_index=True, use_container_width=True)
 
+        # === ÁREA GRÁTIS (SE NÃO ESTIVER LOGADO) ===
         else:
-            # === ÁREA GRÁTIS (SÓ MOSTRA 3) ===
             st.success(f"Encontramos **{len(res)}** opções disponíveis!")
             st.subheader("📋 Top 3 Resultados (Demonstração Grátis)")
             
