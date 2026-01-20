@@ -38,15 +38,26 @@ st.markdown("""
         text-align: center;
         margin-bottom: 20px;
     }
-    .ad-container {
-        margin-top: 10px;
+    .success-box {
+        padding: 15px; 
+        background-color: #d4edda; 
+        color: #155724; 
+        border-radius: 5px; 
         margin-bottom: 10px;
-        text-align: center;
+        border-left: 5px solid #28a745;
+    }
+    .warning-box {
+        padding: 15px; 
+        background-color: #fff3cd; 
+        color: #856404; 
+        border-radius: 5px; 
+        margin-bottom: 10px;
+        border-left: 5px solid #ffc107;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- FUNÇÃO DE ANÚNCIOS (BANNERS) ---
+# --- FUNÇÃO DE ANÚNCIOS ---
 def exibir_anuncio(tipo, altura=None):
     # SEUS LINKS DE AFILIADO
     img_notebook = "https://m.media-amazon.com/images/I/713GzsYLBbL._AC_SX522_.jpg" 
@@ -110,7 +121,6 @@ def carregar_dados():
         nomes_fixos = ["Codigo", "Curso", "Grau", "Turno", "Campus", "Cidade", "UF", "Universidade", "Sigla", "P_Redacao", "P_Matematica", "P_Linguagens", "P_Humanas", "P_Natureza"]
         
         lista_dfs = []
-        # Processa as colunas de cotas
         for i in range(21, df.shape[1], 5):
             if i + 2 < df.shape[1]:
                 temp = df.iloc[:, indices_fixos + [i, i+2]].copy()
@@ -120,7 +130,6 @@ def carregar_dados():
         
         if lista_dfs:
             final = pd.concat(lista_dfs, ignore_index=True)
-            # Converte números
             cols_num = ["P_Redacao", "P_Matematica", "P_Linguagens", "P_Humanas", "P_Natureza", "Nota_Corte"]
             for col in cols_num:
                 final[col] = pd.to_numeric(final[col], errors='coerce')
@@ -204,12 +213,14 @@ if st.button(txt_botao, type="primary", use_container_width=True):
     if res.empty:
         st.info("Nenhum curso encontrado com esses filtros.")
     else:
-        st.success(f"Encontramos **{len(res)}** opções disponíveis!")
-        
         if acesso_vip:
-            # === ÁREA VIP ===
-            tab1, tab2 = st.tabs(["📄 GUIA DA MATRÍCULA (PDF)", "📋 LISTA COMPLETA"])
+            # === ÁREA VIP COMPLETA ===
+            st.success(f"Encontramos **{len(res)}** opções disponíveis para você!")
+            
+            tab1, tab2 = st.tabs(["📄 GUIA DA MATRÍCULA (PDF)", "📊 MEUS RESULTADOS COMPLETOS"])
+            
             with tab1:
+                # [ABA 1: DOWNLOAD DO GUIA]
                 col_dload, col_share = st.columns(2)
                 with col_dload:
                     try:
@@ -222,8 +233,6 @@ if st.button(txt_botao, type="primary", use_container_width=True):
                     st.link_button("💚 Compartilhar no WhatsApp", f"https://wa.me/?text={texto_zap}", use_container_width=True)
                 
                 st.markdown("---")
-                
-                # --- CHECKLIST NOVO (CORRIGIDO) ---
                 st.subheader("📖 Checklist Rápido (Resumo)")
                 st.markdown("""
                 <div style="background-color: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 5px solid #198754;">
@@ -238,11 +247,41 @@ if st.button(txt_botao, type="primary", use_container_width=True):
                 """, unsafe_allow_html=True)
 
             with tab2:
-                st.dataframe(res[['Curso', 'Universidade', 'Sigla', 'UF', 'Turno', 'Sua_Media', 'Nota_Corte', 'Diferenca']], hide_index=True, use_container_width=True)
+                # [ABA 2: RESULTADOS DIVIDIDOS]
+                
+                # Filtrar Aprovados
+                aprovados = res[res['Aprovado'] == True]
+                nao_aprovados = res[res['Aprovado'] == False]
+                
+                # --- PARTE 1: ONDE PASSOU ---
+                if not aprovados.empty:
+                    st.markdown(f"""
+                    <div class="success-box">
+                        <h3>🏆 PARABÉNS! VOCÊ PASSA EM {len(aprovados)} CURSOS!</h3>
+                        <p>Nesta lista abaixo, sua nota é <b>MAIOR</b> que a nota de corte.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    st.dataframe(aprovados[['Curso', 'Universidade', 'Sigla', 'UF', 'Turno', 'Sua_Media', 'Nota_Corte', 'Diferenca']], hide_index=True, use_container_width=True)
+                else:
+                    st.warning("Com essas notas, você não passaria direto na chamada regular nestes cursos. Veja a Lista de Espera abaixo.")
+                
+                st.divider()
+                
+                # --- PARTE 2: LISTA DE ESPERA ---
+                if not nao_aprovados.empty:
+                    st.markdown(f"""
+                    <div class="warning-box">
+                        <h3>⚠️ LISTA DE ESPERA ({len(nao_aprovados)} opções)</h3>
+                        <p>Nesta lista, sua nota ficou abaixo do corte. Veja a coluna 'Diferença' para saber o quão perto você está.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    st.dataframe(nao_aprovados[['Curso', 'Universidade', 'Sigla', 'UF', 'Turno', 'Sua_Media', 'Nota_Corte', 'Diferenca']], hide_index=True, use_container_width=True)
 
         else:
-            # === ÁREA GRÁTIS ===
-            st.subheader("📋 Top 3 Resultados (Demonstração)")
+            # === ÁREA GRÁTIS (SÓ MOSTRA 3) ===
+            st.success(f"Encontramos **{len(res)}** opções disponíveis!")
+            st.subheader("📋 Top 3 Resultados (Demonstração Grátis)")
+            
             for i, row in res.head(3).iterrows():
                 icon = "✅" if row['Aprovado'] else "❌"
                 st.markdown(f"**{icon} {row['Curso']}** - {row['Sigla']} ({row['UF']})")
