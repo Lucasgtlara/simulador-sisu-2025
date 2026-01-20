@@ -222,7 +222,9 @@ if st.button(txt_botao, type="primary", use_container_width=True):
                     st.link_button("💚 Compartilhar no WhatsApp", f"https://wa.me/?text={texto_zap}", use_container_width=True)
                 
                 st.markdown("---")
-              st.subheader("📖 Checklist Rápido (Resumo)")
+                
+                # --- CHECKLIST NOVO (CORRIGIDO) ---
+                st.subheader("📖 Checklist Rápido (Resumo)")
                 st.markdown("""
                 <div style="background-color: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 5px solid #198754;">
                     <ul style="list-style-type: none; padding-left: 0;">
@@ -255,4 +257,3 @@ if st.button(txt_botao, type="primary", use_container_width=True):
             
             st.divider()
             exibir_anuncio('rodape')
-
