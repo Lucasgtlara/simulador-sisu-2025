@@ -138,7 +138,7 @@ df_sisu = carregar_dados()
 with st.sidebar:
     # --- ÁREA DE LOGIN ---
     if not st.session_state['vip_liberado']:
-        with st.expander("🔐 Área VIP (Já comprei)", expanded=True):
+        with st.expander("🔐 Login", expanded=True):
             senha_digitada = st.text_input("Digite sua Senha de Acesso:", type="password")
             if st.button("Entrar"):
                 if senha_digitada == SENHA_MESTRA:
@@ -298,3 +298,4 @@ if st.button(txt_botao, type="primary", use_container_width=True):
             
             st.divider()
             exibir_anuncio('rodape')
+
