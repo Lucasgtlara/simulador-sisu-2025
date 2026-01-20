@@ -222,10 +222,18 @@ if st.button(txt_botao, type="primary", use_container_width=True):
                     st.link_button("💚 Compartilhar no WhatsApp", f"https://wa.me/?text={texto_zap}", use_container_width=True)
                 
                 st.markdown("---")
-                st.subheader("📖 Checklist Rápido")
-                st.checkbox("RG e CPF")
-                st.checkbox("Histórico Escolar")
-                st.checkbox("Comprovante de Residência")
+              st.subheader("📖 Checklist Rápido (Resumo)")
+                st.markdown("""
+                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 5px solid #198754;">
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        <li>✅ <b>RG e CPF</b> (Original e Cópia)</li>
+                        <li>✅ <b>Histórico Escolar</b> Completo</li>
+                        <li>✅ <b>Comprovante de Residência</b> (Atualizado)</li>
+                        <li>✅ <b>Foto 3x4</b> Recente</li>
+                    </ul>
+                    <small><i>*Baixe o PDF acima para ver a lista completa de cotas!</i></small>
+                </div>
+                """, unsafe_allow_html=True)
 
             with tab2:
                 st.dataframe(res[['Curso', 'Universidade', 'Sigla', 'UF', 'Turno', 'Sua_Media', 'Nota_Corte', 'Diferenca']], hide_index=True, use_container_width=True)
@@ -247,3 +255,4 @@ if st.button(txt_botao, type="primary", use_container_width=True):
             
             st.divider()
             exibir_anuncio('rodape')
+
