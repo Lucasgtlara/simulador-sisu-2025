@@ -6,6 +6,55 @@ import urllib.parse
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Simulador Sisu 2025", page_icon="🎓", layout="wide")
 
+# ==============================================================================
+# --- CONFIGURAÇÃO DO GOOGLE ADS (COLOQUE SEUS DADOS AQUI) ---
+# ==============================================================================
+GOOGLE_ADS_ID = "AW-SEU-ID-AQUI"  # Ex: AW-1144556677
+CONVERSION_LABEL = "SEU-LABEL-DE-CONVERSAO" # Ex: A1b2C3d4E5f6G7h8 (Opcional, se houver)
+
+def injetar_google_ads(tipo="pageview"):
+    """
+    Injeta o código do Google Ads.
+    tipo='pageview': Rastreamento geral de visita.
+    tipo='conversion': Rastreamento de venda/compra.
+    """
+    if tipo == "pageview":
+        # Código Base (Global Site Tag)
+        html_code = f"""
+        <script async src="https://www.googletagmanager.com/gtag/js?id={GOOGLE_ADS_ID}"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){{dataLayer.push(arguments);}}
+          gtag('js', new Date());
+          gtag('config', '{GOOGLE_ADS_ID}');
+        </script>
+        """
+        components.html(html_code, height=0)
+        
+    elif tipo == "conversion":
+        # Snippet de Evento (Dispara quando vira VIP)
+        # Se você tiver um "Rótulo de conversão" (Label), ele entra no send_to
+        send_to_string = f"{GOOGLE_ADS_ID}/{CONVERSION_LABEL}" if CONVERSION_LABEL else GOOGLE_ADS_ID
+        
+        html_code = f"""
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){{dataLayer.push(arguments);}}
+          gtag('event', 'conversion', {{
+              'send_to': '{send_to_string}',
+              'value': 6.90,
+              'currency': 'BRL',
+              'transaction_id': '' 
+          }});
+          console.log('Google Ads: Conversão registrada!');
+        </script>
+        """
+        components.html(html_code, height=0)
+
+# Injeta a tag global em todas as páginas
+injetar_google_ads(tipo="pageview")
+# ==============================================================================
+
 # --- CSS PERSONALIZADO ---
 st.markdown("""
 <style>
@@ -87,6 +136,16 @@ if 'vip_liberado' not in st.session_state:
 
 if 'calc_realizado' not in st.session_state:
     st.session_state['calc_realizado'] = False
+
+# Estado para controlar o disparo da conversão (Evita contar duplicado)
+if 'disparar_conversao' not in st.session_state:
+    st.session_state['disparar_conversao'] = False
+
+# Se a flag de conversão estiver ativa (logo após o login), dispara o pixel e desliga a flag
+if st.session_state['disparar_conversao']:
+    injetar_google_ads(tipo="conversion")
+    st.toast("Pagamento confirmado! Conversão registrada no Google Ads.", icon="✅")
+    st.session_state['disparar_conversao'] = False # Reseta para não contar de novo ao recarregar
 
 # --- FUNÇÃO DE ANÚNCIOS (BANNERS COMUNS) ---
 def exibir_anuncio(tipo, altura=None):
@@ -325,10 +384,11 @@ if st.session_state['calc_realizado']:
                         if st.button("Liberar Acesso VIP"):
                             if senha_user == SENHA_MESTRA:
                                 st.session_state['vip_liberado'] = True
+                                # --- AQUI DISPARA O EVENTO DE VENDA ---
+                                st.session_state['disparar_conversao'] = True
                                 st.rerun()
                             else:
                                 st.error("Senha incorreta.")
             
             st.divider()
             exibir_anuncio('rodape')
-
