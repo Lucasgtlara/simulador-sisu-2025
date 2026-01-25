@@ -7,10 +7,11 @@ import urllib.parse
 st.set_page_config(page_title="Simulador Sisu 2025", page_icon="🎓", layout="wide")
 
 # ==============================================================================
-# --- CONFIGURAÇÃO DO GOOGLE ADS (COLOQUE SEUS DADOS AQUI) ---
+# --- CONFIGURAÇÃO DO GOOGLE ADS (DADOS ATUALIZADOS) ---
 # ==============================================================================
-GOOGLE_ADS_ID = "AW-SEU-ID-AQUI"  # Ex: AW-1144556677
-CONVERSION_LABEL = "SEU-LABEL-DE-CONVERSAO" # Ex: A1b2C3d4E5f6G7h8 (Opcional, se houver)
+# Dados extraídos da sua imagem
+GOOGLE_ADS_ID = "AW-17888947752"  
+CONVERSION_LABEL = "ZtUWCLvpjesBEKjcjtJC" 
 
 def injetar_google_ads(tipo="pageview"):
     """
@@ -32,9 +33,8 @@ def injetar_google_ads(tipo="pageview"):
         components.html(html_code, height=0)
         
     elif tipo == "conversion":
-        # Snippet de Evento (Dispara quando vira VIP)
-        # Se você tiver um "Rótulo de conversão" (Label), ele entra no send_to
-        send_to_string = f"{GOOGLE_ADS_ID}/{CONVERSION_LABEL}" if CONVERSION_LABEL else GOOGLE_ADS_ID
+        # Snippet de Evento (Dispara quando a senha VIP é aceita)
+        send_to_string = f"{GOOGLE_ADS_ID}/{CONVERSION_LABEL}"
         
         html_code = f"""
         <script>
@@ -46,12 +46,12 @@ def injetar_google_ads(tipo="pageview"):
               'currency': 'BRL',
               'transaction_id': '' 
           }});
-          console.log('Google Ads: Conversão registrada!');
+          console.log('Google Ads: Conversão de Venda Registrada!');
         </script>
         """
         components.html(html_code, height=0)
 
-# Injeta a tag global em todas as páginas
+# Injeta a tag global em todas as páginas automaticamente
 injetar_google_ads(tipo="pageview")
 # ==============================================================================
 
